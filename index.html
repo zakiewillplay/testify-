@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Crafter Pro – AI Powered</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg: #ffffff;
+      --bg-card: #f5f3ff;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --radius: 12px;
+    }
+    .dark { --bg: #111827; --bg-card: #1f2937; --text: #f9fafb; --muted: #9ca3af; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 750px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+      transition: background 0.3s;
+    }
+    .hero { text-align: center; margin-bottom: 2rem; position: relative; }
+    .hero h1 { font-size: 2rem; }
+    .lead { color: var(--muted); }
+    .dark-toggle { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .card { background: var(--bg-card); border-radius: var(--radius); padding: 1.8rem; margin-bottom: 2rem; box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
+    h2 { margin: 1.5rem 0 0.5rem; font-size: 1.2rem; }
+    label { display: block; font-weight: 600; margin: 1rem 0 0.2rem; }
+    .sublabel { font-weight: normal; font-size: 0.9rem; color: var(--muted); }
+    input, select, textarea {
+      width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 1rem; font-family: inherit; background: var(--bg); color: var(--text);
+    }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; margin-top: 0.3rem; }
+    .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 0.3rem; margin: 0; }
+    button {
+      background: var(--primary); color: white; border: none;
+      padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600;
+      cursor: pointer; min-height: 48px; font-size: 1rem;
+    }
+    button:hover { background: var(--primary-hover); }
+    button:disabled { opacity: 0.6; }
+    .secondary-btn { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .secondary-btn:hover { background: #e0e7ff; }
+    .button-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .output {
+      background: var(--bg); border: 1px solid #ddd; border-radius: 6px;
+      padding: 1.5rem; white-space: pre-wrap; font-family: monospace;
+      max-height: 60vh; overflow-y: auto; margin-bottom: 1rem;
+    }
+    .conditional { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s, opacity 0.3s; }
+    .conditional.show { max-height: 6000px; opacity: 1; }
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; background: #10b981; color: white;
+      padding: 0.75rem 1.5rem; border-radius: 6px; opacity: 0; transform: translateY(20px);
+      transition: 0.3s; pointer-events: none; z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .review-panel { margin-top: 1rem; padding: 1rem; background: var(--bg); border: 1px solid #ddd; border-radius: 6px; display: none; }
+    .review-panel.show { display: block; }
+    .review-rating { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .loader {
+      display: inline-block; width: 1rem; height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+      border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #formPage, #resultPage { transition: opacity 0.2s; }
+    .hidden-page { display: none; }
+    .back-link { color: var(--primary); text-decoration: underline; cursor: pointer; margin-bottom: 1rem; display: inline-block; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <button class="dark-toggle" onclick="toggleDark()">🌓</button>
+    <h1>✨ Prompt Crafter Pro</h1>
+    <p class="lead">Mostly tick boxes. Perfect prompts every time – template or AI.</p>
+  </header>
+
+  <!-- FORM PAGE -->
+  <section id="formPage">
+    <div class="card">
+      <label for="type">1. What do you want to create?</label>
+      <select id="type">
+        <option value="">-- Choose --</option>
+        <option value="Website">Website</option>
+        <option value="Web App">Web App</option>
+        <option value="Video">Video</option>
+        <option value="Image / Graphic">Image / Graphic</option>
+      </select>
+
+      <label for="goal">2. In one sentence, what’s it for?</label>
+      <textarea id="goal" rows="2" placeholder="e.g. A portfolio site for a lehenga boutique"></textarea>
+
+      <!-- Website conditional -->
+      <div id="websiteQ" class="conditional">
+        <hr><h2>🌐 Website</h2>
+        <label for="webName">Business name</label>
+        <input type="text" id="webName" placeholder="Ms Lehanga">
+
+        <label>Industry</label>
+        <select id="webIndustry">
+          <option value="">-- Pick --</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Food">Food</option>
+          <option value="Technology">Technology</option>
+          <option value="Health">Health</option>
+          <option value="Education">Education</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Target audience</label>
+        <div class="checkbox-group" id="audienceCheckboxes">
+          <label><input type="checkbox" value="Everyone"> Everyone</label>
+          <label><input type="checkbox" value="Women"> Women</label>
+          <label><input type="checkbox" value="Men"> Men</label>
+          <label><input type="checkbox" value="Brides"> Brides</label>
+          <label><input type="checkbox" value="Grooms"> Grooms</label>
+          <label><input type="checkbox" value="Local customers"> Local customers</label>
+        </div>
+
+        <label for="webLocation">Location</label>
+        <input type="text" id="webLocation" placeholder="Kupwara, Jammu & Kashmir">
+
+        <label>Main goal</label>
+        <select id="webGoalAction">
+          <option value="">-- Pick --</option>
+          <option value="purchase">Buy / Purchase</option>
+          <option value="booking">Book appointment</option>
+          <option value="contact">Get in touch</option>
+          <option value="subscribe">Subscribe</option>
+          <option value="learn">Learn more</option>
+        </select>
+
+        <label for="webTagline">Tagline (optional)</label>
+        <input type="text" id="webTagline" placeholder="Elegance woven in every thread">
+
+        <label>Pages / sections</label>
+        <div class="checkbox-group" id="pagesCheckboxes">
+          <label><input type="checkbox" value="Home"> Home</label>
+          <label><input type="checkbox" value="About"> About</label>
+          <label><input type="checkbox" value="Gallery"> Gallery</label>
+          <label><input type="checkbox" value="Booking"> Booking</label>
+          <label><input type="checkbox" value="Contact"> Contact</label>
+          <label><input type="checkbox" value="Testimonials"> Testimonials</label>
+        </div>
+
+        <label>Features</label>
+        <div class="checkbox-group" id="featuresCheckboxes">
+          <label><input type="checkbox" value="booking system"> Booking system</label>
+          <label><input type="checkbox" value="image gallery"> Image gallery</label>
+          <label><input type="checkbox" value="contact form"> Contact form</label>
+          <label><input type="checkbox" value="Google Maps"> Google Maps</label>
+        </div>
+
+        <label>Colour vibe</label>
+        <select id="webColors">
+          <option value="">-- Pick --</option>
+          <option value="soft pastels">Soft pastels</option>
+          <option value="warm earth tones">Warm earth tones</option>
+          <option value="dark & elegant">Dark & elegant</option>
+          <option value="bright & bold">Bright & bold</option>
+          <option value="minimal black & white">Minimal B&W</option>
+        </select>
+
+        <label>Typography</label>
+        <select id="webFonts">
+          <option value="">-- Pick --</option>
+          <option value="elegant serif">Elegant serif</option>
+          <option value="clean sans-serif">Clean sans‑serif</option>
+          <option value="modern monospace">Modern monospace</option>
+        </select>
+
+        <label for="webInspiration">Inspiration site</label>
+        <input type="text" id="webInspiration" placeholder="apple.com">
+
+        <label>Your links</label>
+        <input type="text" id="instagram" placeholder="Instagram URL">
+        <input type="text" id="facebook" placeholder="Facebook URL" style="margin-top:0.5rem;">
+        <input type="text" id="googleBusiness" placeholder="Google Business URL" style="margin-top:0.5rem;">
+
+        <label>Layout</label>
+        <select id="webLayoutStructure">
+          <option value="single-page">Single page</option>
+          <option value="multi-page">Multi page</option>
+        </select>
+
+        <label>Responsive</label>
+        <select id="webResponsive">
+          <option value="mobile-first">Mobile‑first (768px)</option>
+          <option value="desktop-first">Desktop‑first</option>
+        </select>
+      </div>
+
+      <!-- Web App -->
+      <div id="appQ" class="conditional">
+        <hr><h2>📱 Web App</h2>
+        <label for="appName">App name</label><input type="text" id="appName" placeholder="My App">
+        <label>Problem it solves</label><input type="text" id="appProblem" placeholder="helps people...">
+        <label>Target users</label><input type="text" id="appAudience" placeholder="everyone">
+        <label>Core features</label><textarea id="appFeatures" rows="2" placeholder="login, dashboard"></textarea>
+        <label>Design style</label><input type="text" id="appDesign" placeholder="clean, minimal">
+        <label>Technologies</label><input type="text" id="appTech" placeholder="HTML, CSS, JS">
+      </div>
+
+      <!-- Video -->
+      <div id="videoQ" class="conditional">
+        <hr><h2>🎬 Video</h2>
+        <label>Type</label><select id="videoCategory"><option value="Promo">Promo</option><option value="Tutorial">Tutorial</option></select>
+        <label>Length</label><input type="text" id="videoLength" placeholder="2 minutes">
+        <label>Tone</label><input type="text" id="videoTone" placeholder="energetic">
+        <label>Key message</label><textarea id="videoMessage" rows="2" placeholder="main points..."></textarea>
+      </div>
+
+      <!-- Image -->
+      <div id="imageQ" class="conditional">
+        <hr><h2>🎨 Image / Graphic</h2>
+        <label>Type</label><select id="imgType"><option value="Logo">Logo</option><option value="Poster">Poster</option></select>
+        <label>Subject</label><textarea id="imgSubject" rows="2" placeholder="a logo for..."></textarea>
+        <label>Style</label><input type="text" id="imgStyle" placeholder="minimalist">
+        <label>Colours</label><input type="text" id="imgColors" placeholder="warm pastels">
+      </div>
+
+      <hr><h2>🎯 Final Touches</h2>
+      <label>Tone</label>
+      <select id="tone"><option value="Professional">Professional</option><option value="Casual">Casual</option></select>
+      <label for="extra">Extra notes</label>
+      <textarea id="extra" rows="2"></textarea>
+
+      <label>AI Provider</label>
+      <select id="aiProvider">
+        <option value="template">📝 Template (instant, free)</option>
+        <option value="auto" selected>🚀 Auto (Gemini → Cerebras fallback)</option>
+        <option value="gemini">🌟 Gemini only</option>
+        <option value="cerebras">⚡ Cerebras only</option>
+      </select>
+
+      <div class="button-group">
+        <button id="craftBtn">✨ Generate Prompt</button>
+        <button id="clearBtn" class="secondary-btn">🗑️ Clear</button>
+      </div>
+      <button id="testModelsBtn" class="secondary-btn" style="margin-top: 0.5rem;">🔧 Test Cerebras Models</button>
+      <div id="modelList" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;"></div>
+      <p id="status"></p>
+    </div>
+  </section>
+
+  <!-- RESULT PAGE (hidden) -->
+  <section id="resultPage" class="hidden-page">
+    <div class="card">
+      <span class="back-link" onclick="goBack()">← Back to form</span>
+      <h2>Your Prompt</h2>
+      <div class="output" id="result"></div>
+      <div class="button-group">
+        <button id="copyBtn" class="secondary-btn">📋 Copy</button>
+        <button id="downloadBtn" class="secondary-btn">💾 Download</button>
+        <button id="rateBtn" class="secondary-btn">🤖 Rate & Improve</button>
+      </div>
+      <div class="review-panel" id="reviewPanel">
+        <span class="review-rating" id="reviewRating"></span>
+        <p id="reviewFeedback"></p>
+        <button id="applyImprovementBtn" class="secondary-btn" style="display: none;">✨ Apply Improved Prompt</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = "https://udlmyspetkjzcdkfshgl.supabase.co";
+    const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkbG15c3BldGtqemNka2ZzaGdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODIzMDksImV4cCI6MjA5NDc1ODMwOX0.oQL6hbwjQlU_2h4xcbD-v1yl7EubMz90VpIpTPBwEM4";
+    const EDGE_URL = `${SUPABASE_URL}/functions/v1/api-key`;
+
+    // Dark mode
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+
+    // Conditional sections
+    const typeSelect = document.getElementById('type');
+    const sections = {
+      Website: document.getElementById('websiteQ'),
+      'Web App': document.getElementById('appQ'),
+      Video: document.getElementById('videoQ'),
+      'Image / Graphic': document.getElementById('imageQ'),
+    };
+    typeSelect.addEventListener('change', () => {
+      Object.values(sections).forEach(s => s.classList.remove('show'));
+      const type = typeSelect.value;
+      if (sections[type]) sections[type].classList.add('show');
+    });
+
+    function goBack() {
+      document.getElementById('formPage').classList.remove('hidden-page');
+      document.getElementById('resultPage').classList.add('hidden-page');
+    }
+    function showResultPage(text) {
+      document.getElementById('result').textContent = text;
+      document.getElementById('formPage').classList.add('hidden-page');
+      document.getElementById('resultPage').classList.remove('hidden-page');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      saveToHistory(text);
+    }
+
+    function getChecked(name) {
+      return [...document.querySelectorAll(`#${name} input[type="checkbox"]:checked`)].map(cb => cb.value);
+    }
+
+    function getAnswers() {
+      const ids = [...document.querySelectorAll('input[type="text"], input[type="url"], select, textarea')].map(el => el.id).filter(Boolean);
+      const ans = {};
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value.trim() !== '') ans[id] = el.value.trim();
+      });
+      const audience = getChecked('audienceCheckboxes');
+      if (audience.length) ans.webAudience = audience.join(', ');
+      const pages = getChecked('pagesCheckboxes');
+      if (pages.length) ans.webPages = pages.join(', ');
+      const features = getChecked('featuresCheckboxes');
+      if (features.length) ans.webFeatures = features.join(', ');
+      ['instagram','facebook','googleBusiness'].forEach(k => {
+        const val = document.getElementById(k)?.value?.trim();
+        if (val) ans[k] = val;
+      });
+      return ans;
+    }
+
+    // ========== NEW: STRONG TEMPLATE BUILDERS ==========
+    function buildWebsite(a) {
+      let p = `Act as a senior full‑stack web developer & UI/UX designer. Your task is to create a complete, production‑ready website for ${a.webName || 'the business'}.
+
+**PROJECT OVERVIEW**
+- Business: ${a.webName || 'N/A'}
+- Industry: ${a.webIndustry || 'N/A'}
+- Target Audience: ${a.webAudience || 'N/A'}
+- Location: ${a.webLocation || 'N/A'}
+- Primary Goal: ${a.webGoalAction || 'N/A'}
+${a.webTagline ? `- Tagline: "${a.webTagline}"\n` : ''}
+**SOCIAL LINKS** (use these in the footer and contact sections)
+${a.instagram ? `- Instagram: ${a.instagram}\n` : ''}${a.facebook ? `- Facebook: ${a.facebook}\n` : ''}${a.googleBusiness ? `- Google Business: ${a.googleBusiness}\n` : ''}
+**PAGES / SECTIONS**
+${a.webPages || 'Home, About, Contact'}
+**SPECIAL FEATURES**
+${a.webFeatures || 'none'}${a.webFeatures && a.webFeatures.includes('booking') ? '\n  Booking details: implement a front‑end form with date/time selection, name, phone, and a confirmation message.' : ''}${a.webFeatures && a.webFeatures.includes('gallery') ? '\n  Gallery: create a responsive grid with lightbox. Use high‑quality placeholders.' : ''}
+**DESIGN SYSTEM**
+- Colours: ${a.webColors || 'professional, harmonious palette'}
+- Typography: ${a.webFonts || 'clean sans‑serif'}
+- Inspiration: ${a.webInspiration || 'modern, minimal sites'}
+- Layout: ${a.webLayoutStructure || 'single scrolling page'}
+**TECHNICAL REQUIREMENTS**
+- Responsive: ${a.webResponsive || 'mobile‑first, 768px breakpoint'}
+- Accessibility: semantic HTML5, ARIA labels, keyboard navigation, good contrast
+- Performance: lazy load images, minified output, fast load
+${a.extra ? `**ADDITIONAL NOTES**\n${a.extra}\n` : ''}
+**OUTPUT**  
+Deliver a single HTML file with embedded CSS and vanilla JavaScript. Use CSS custom properties for theming. The code must be ready to open in a browser, fully functional.
+
+Write the complete code now.`;
+      return p;
+    }
+
+    function buildWebApp(a) {
+      return `Act as a full‑stack web developer. Build a single‑page web app "${a.appName || 'the app'}".
+
+**Problem Solved:** ${a.appProblem}
+**Target Users:** ${a.appAudience}
+**Core Features:** ${a.appFeatures}
+**Design Style:** ${a.appDesign}
+**Tech Stack:** ${a.appTech}
+
+Create a fully functional client‑side app using only HTML, CSS, and vanilla JS. Include all features as described. Use semantic HTML, a clean UI, and mobile‑responsive design. Output only the complete code.`;
+    }
+
+    function buildVideo(a) {
+      return `Act as a professional scriptwriter. Write a ${a.videoCategory || 'promo'} video script (${a.videoLength || '2 minutes'}) about: "${a.goal || ''}".
+
+**Tone:** ${a.videoTone}
+**Key Message:** ${a.videoMessage}
+
+Structure the script with timestamps, scene descriptions, dialogue/narration, and on‑screen text. End with a clear call to action. Output only the full script.`;
+    }
+
+    function buildImage(a) {
+      return `Act as an AI art director. Generate a detailed image prompt for DALL·E or Midjourney.
+
+**Type:** ${a.imgType}
+**Subject:** ${a.imgSubject}
+**Style:** ${a.imgStyle}
+**Colour Palette:** ${a.imgColors}
+${a.imgText ? `**Text to include:** "${a.imgText}"\n` : ''}${a.imgSize ? `**Dimensions:** ${a.imgSize}\n` : ''}
+Describe the composition, lighting, mood, and style references. Output only the image prompt, ready to copy into an image generator.`;
+    }
+
+    function buildGeneric(a) {
+      return `Act as a prompt engineer. Create a detailed, ready‑to‑use prompt for: "${a.goal || ''}". Include all provided details. Output only the final prompt.`;
+    }
+
+    function buildTemplatePrompt(answers) {
+      const media = answers.mediaType || answers.type || 'Other';
+      switch (media) {
+        case 'Website': return buildWebsite(answers);
+        case 'Web App': return buildWebApp(answers);
+        case 'Video': return buildVideo(answers);
+        case 'Image / Graphic': return buildImage(answers);
+        default: return buildGeneric(answers);
+      }
+    }
+
+    // ========== GENERATE ==========
+    document.getElementById('craftBtn').addEventListener('click', async () => {
+      const answers = getAnswers();
+      if (!answers.type && !answers.goal) return alert('Please choose a type and write a goal.');
+
+      const provider = document.getElementById('aiProvider').value;
+      const btn = document.getElementById('craftBtn');
+      const status = document.getElementById('status');
+
+      if (provider === 'template') {
+        const prompt = buildTemplatePrompt(answers);
+        showResultPage(prompt);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loader"></span> Generating...';
+      status.textContent = `Calling ${provider}...`;
+
+      try {
+        const res = await fetch(EDGE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${ANON_KEY}`, 'apikey':ANON_KEY },
+          body: JSON.stringify({ mode:'generatePrompt', provider, answers })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        if (data.prompt) {
+          showResultPage(data.prompt);
+          status.textContent = `✅ Generated via ${data.usedProvider || provider}`;
+        } else {
+          status.textContent = '⚠️ No prompt returned.';
+        }
+      } catch (err) {
+        status.textContent = '❌ Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✨ Generate Prompt';
+      }
+    });
+
+    // Copy, Download, Rate
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('result').textContent).then(() => showToast('Copied!'));
+    });
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const blob = new Blob([document.getElementById('result').textContent], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'prompt.txt';
+      a.click();
+      showToast('Downloaded!');
+    });
+
+    let improvedPromptText = null;
+    document.getElementById('rateBtn').addEventListener('click', async () => {
+      const original = document.getElementById('result').textContent;
+      if (!original) return;
+      const btn = document.getElementById('rateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loader"></span> Reviewing...';
+      try {
+        const res = await fetch(EDGE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${ANON_KEY}`, 'apikey':ANON_KEY },
+          body: JSON.stringify({ mode:'review', prompt: original })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const review = data.review;
+        document.getElementById('reviewRating').textContent = `⭐ ${review.rating}/10`;
+        document.getElementById('reviewFeedback').textContent = review.feedback;
+        const applyBtn = document.getElementById('applyImprovementBtn');
+        if (review.improvedPrompt) {
+          improvedPromptText = review.improvedPrompt;
+          applyBtn.style.display = 'inline-block';
+        } else {
+          applyBtn.style.display = 'none';
+        }
+        document.getElementById('reviewPanel').classList.add('show');
+      } catch (err) {
+        showToast('Review failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🤖 Rate & Improve';
+      }
+    });
+    document.getElementById('applyImprovementBtn').addEventListener('click', () => {
+      if (improvedPromptText) {
+        document.getElementById('result').textContent = improvedPromptText;
+        document.getElementById('reviewPanel').classList.remove('show');
+        saveToHistory(improvedPromptText);
+      }
+    });
+
+    // Clear
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.querySelectorAll('input[type="text"], input[type="url"], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+      document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+      document.getElementById('status').textContent = '';
+      document.getElementById('modelList').style.display = 'none';
+      goBack();
+    });
+
+    // Test Cerebras Models
+    document.getElementById('testModelsBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('testModelsBtn');
+      const resultDiv = document.getElementById('modelList');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      resultDiv.style.display = 'block';
+      resultDiv.textContent = 'Fetching available models...';
+      try {
+        const res = await fetch(EDGE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${ANON_KEY}`, 'apikey':ANON_KEY },
+          body: JSON.stringify({ mode: 'listModels' })
+        });
+        const data = await res.json();
+        if (data.models && data.models.length) {
+          resultDiv.innerHTML = `<strong>✅ Available models (${data.models.length}):</strong><br>${data.models.join('<br>')}`;
+        } else {
+          resultDiv.textContent = 'No models returned. Check API key.';
+        }
+      } catch (err) {
+        resultDiv.textContent = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔧 Test Cerebras Models';
+      }
+    });
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // History
+    function saveToHistory(prompt) {
+      const history = JSON.parse(localStorage.getItem('promptHistory') || '[]');
+      history.unshift({ date: new Date().toISOString(), prompt });
+      localStorage.setItem('promptHistory', JSON.stringify(history.slice(0, 10)));
+    }
+  </script>
+</body>
+                                                        </html>
